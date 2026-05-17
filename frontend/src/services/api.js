@@ -8,7 +8,7 @@ import axios from 'axios';
 const API_BASE = "https://deepfake-backend.onrender.com";
 
 const api = axios.create({
-  baseURL: BASE_URL,
+  baseURL: API_BASE,
   timeout: 120000, // 2 min for heavy video/audio
 });
 
