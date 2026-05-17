@@ -69,7 +69,7 @@ def create_app():
         all_loaded = all(v['loaded'] for v in status.values())
         return {'all_models_ready': all_loaded, 'models': status}, 200
 
-    @app.route('/debug-path', methods=['GET'])
+    @app.route('/', methods=['GET'])
     def debug_path():
         import os
         model_folder = os.path.abspath(
