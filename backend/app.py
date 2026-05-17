@@ -69,7 +69,7 @@ def create_app():
         all_loaded = all(v['loaded'] for v in status.values())
         return {'all_models_ready': all_loaded, 'models': status}, 200
 
-    @app.route('/', methods=['GET'])
+    @app.route('/debug-path', methods=['GET'])
     def debug_path():
         import os
         model_folder = os.path.abspath(
@@ -82,6 +82,13 @@ def create_app():
             'files_found': files_found
         }, 200
 
+    @app.route('/', methods=['GET'])
+    def home():
+        return {
+            'message': 'Deepfake Detection API is running',
+            'endpoints': ['/health', '/status', '/predict']
+        }, 200
+    
     @app.errorhandler(413)
     def file_too_large(e):
         return {'error': 'File too large. Maximum size is 100MB.'}, 413
