@@ -13,7 +13,7 @@ from routes.video_routes import video_bp
 from routes.audio_routes import audio_bp
 from routes.text_routes import text_bp
 
-# Configure logging
+
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
@@ -25,38 +25,47 @@ def create_app():
     """Application factory pattern"""
     app = Flask(__name__)
 
-    # Configuration
-    app.config['MAX_CONTENT_LENGTH'] = 100 * 1024 * 1024  # 100 MB max upload
+    app.config['MAX_CONTENT_LENGTH'] = 100 * 1024 * 1024  # 100 MB
     app.config['UPLOAD_FOLDER'] = os.path.join(os.path.dirname(__file__), 'uploads')
     app.config['MODEL_FOLDER'] = os.path.join(os.path.dirname(__file__), '..', 'models')
 
-    # Create upload folder if it doesn't exist
     os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
-    # Enable CORS for all routes (allow React frontend)
     CORS(app, origins='*')
 
-    # Register blueprints
     app.register_blueprint(image_bp, url_prefix='/predict')
     app.register_blueprint(video_bp, url_prefix='/predict')
     app.register_blueprint(audio_bp, url_prefix='/predict')
     app.register_blueprint(text_bp, url_prefix='/predict')
 
+    @app.route('/', methods=['GET'])
+    def home():
+        return {
+            'message': 'Deepfake Detection API is running',
+            'endpoints': [
+                '/health',
+                '/status',
+                '/predict',
+                '/routes'
+            ]
+        }, 200
+
     @app.route('/health', methods=['GET'])
     def health_check():
-        """Health check endpoint"""
-        return {'status': 'healthy', 'message': 'Deepfake Detection API is running'}, 200
+        return {
+            'status': 'healthy',
+            'message': 'Deepfake Detection API is running'
+        }, 200
 
     @app.route('/status', methods=['GET'])
     def model_status():
-        """Check which models are loaded"""
         from services.model_loader import _get_model_path
 
         models_info = {
-            'image_model':  _get_model_path('../models/model_epoch_1.pth'),
-            'video_model':  _get_model_path('../models/model_epoch_3.pth'),
-            'audio_model':  _get_model_path('../models/audio_model.pth'),
-            'text_model':   _get_model_path('../models/ai_human_model.pkl'),
+            'image_model': _get_model_path('../models/model_epoch_1.pth'),
+            'video_model': _get_model_path('../models/model_epoch_3.pth'),
+            'audio_model': _get_model_path('../models/audio_model.pth'),
+            'text_model': _get_model_path('../models/ai_human_model.pkl'),
         }
 
         status = {}
@@ -67,31 +76,54 @@ def create_app():
                 status[name] = {'loaded': False, 'path': 'NOT FOUND'}
 
         all_loaded = all(v['loaded'] for v in status.values())
-        return {'all_models_ready': all_loaded, 'models': status}, 200
+        return {
+            'all_models_ready': all_loaded,
+            'models': status
+        }, 200
 
     @app.route('/debug-path', methods=['GET'])
     def debug_path():
-        import os
         model_folder = os.path.abspath(
             os.path.join(os.path.dirname(__file__), '..', '..', 'models')
         )
         files_found = os.listdir(model_folder) if os.path.exists(model_folder) else []
+
         return {
             'looking_in': model_folder,
             'folder_exists': os.path.exists(model_folder),
             'files_found': files_found
         }, 200
 
-    @app.route('/', methods=['GET'])
-    def home():
+    @app.route('/predict', methods=['GET'])
+    def predict_info():
         return {
-            'message': 'Deepfake Detection API is running',
-            'endpoints': ['/health', '/status', '/predict']
+            'message': 'Use one of the specific prediction endpoints under /predict',
+            'note': 'Open /routes to see the exact registered URLs from your blueprints'
         }, 200
-    
+
+    @app.route('/routes', methods=['GET'])
+    def list_routes():
+        routes = []
+        for rule in app.url_map.iter_rules():
+            routes.append({
+                'endpoint': rule.endpoint,
+                'methods': sorted([m for m in rule.methods if m not in ['HEAD', 'OPTIONS']]),
+                'path': str(rule)
+            })
+
+        routes = sorted(routes, key=lambda x: x['path'])
+        return {'routes': routes}, 200
+
     @app.errorhandler(413)
     def file_too_large(e):
         return {'error': 'File too large. Maximum size is 100MB.'}, 413
+
+    @app.errorhandler(404)
+    def not_found(e):
+        return {
+            'error': 'Route not found',
+            'message': 'Open /routes to see all available endpoints'
+        }, 404
 
     @app.errorhandler(500)
     def internal_error(e):
@@ -102,10 +134,11 @@ def create_app():
     return app
 
 
+app = create_app()
+
+
 if __name__ == '__main__':
-    app = create_app()
     port = int(os.environ.get('PORT', 5000))
     debug = os.environ.get('DEBUG', 'False').lower() == 'true'
     logger.info(f"Starting server on port {port}")
-    if __name__ == "__main__":
-        app.run(host="0.0.0.0", port=5000)
+    app.run(host='0.0.0.0', port=port, debug=debug)
