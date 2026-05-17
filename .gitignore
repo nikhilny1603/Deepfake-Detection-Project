@@ -1,0 +1,14 @@
+node_modules/
+.venv/
+venv/
+__pycache__/
+
+*.pth
+*.h5
+*.pkl
+*.pt
+
+dataset/
+datasets/
+build/
+dist/

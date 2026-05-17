@@ -1,0 +1,89 @@
+/* Shared detection page styles */
+
+/* Image preview */
+.preview-wrapper {
+  margin: 1rem 0;
+  text-align: center;
+  border-radius: 8px;
+  overflow: hidden;
+  max-height: 360px;
+}
+
+.image-preview {
+  max-width: 100%;
+  max-height: 360px;
+  object-fit: contain;
+  border-radius: 8px;
+}
+
+/* Settings row */
+.settings-row {
+  margin: 0.75rem 0;
+}
+
+.settings-label {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.settings-select {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text);
+  padding: 0.35rem 0.65rem;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.settings-select:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+
+/* Audio info */
+.audio-info-box {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  font-size: 0.88rem;
+  color: var(--text-muted);
+  margin: 0.75rem 0;
+}
+
+/* Text stats */
+.text-stats {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1.25rem;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  margin-top: 0.35rem;
+  margin-bottom: 0.5rem;
+}
+
+/* Sample buttons */
+.sample-buttons {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.sample-label {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.btn.small {
+  padding: 0.35rem 0.75rem;
+  font-size: 0.8rem;
+}
